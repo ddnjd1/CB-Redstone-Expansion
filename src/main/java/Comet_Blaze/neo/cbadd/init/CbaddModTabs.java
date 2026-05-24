@@ -16,9 +16,8 @@ public class CbaddModTabs {
     public static final Supplier<CreativeModeTab> TAB_PIKVA = CREATIVE_MODE_TABS.register("tabpikva",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("item_group.cbadd.tabpikva"))
-                    .icon(() -> new ItemStack(CbaddModItems.CONNECTOR.get().asItem())) // 使用 get() 获取实际方块
+                    .icon(() -> new ItemStack(CbaddModItems.CONNECTOR.get().asItem())) 
                     .displayItems((parameters, output) -> {
-                        // 无线红石设备
                         output.accept(CbaddModItems.CONNECTOR.get());
                         output.accept(CbaddModItems.INPUT_BLOCK.get());
                         output.accept(CbaddModItems.OUTPUT_BLOCK.get());
