@@ -34,13 +34,7 @@ public enum KeyBindings {
         }
         return null;
     }
-
-    /**
-     * 检查给定 keyCode 是否需要被拦截原版行为。
-     * Q：丢出物品 → 需拦截
-     * F：副手交换 → 需拦截
-     * G：无原版默认行为，但仍应拦截以防止其他 mod 处理
-     */
+//no use ony a api
     public boolean needsInterception() {
         return this == Q || this == F || this == G;
     }
