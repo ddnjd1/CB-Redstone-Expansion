@@ -103,7 +103,7 @@ public class KeyTriggerBlockItem extends BlockItem {
                             .append(String.format("%d, %d, %d", x, y, z))
                             .append("] : ")
                             .append(Component.translatable("item.cbadd.key_trigger_block.bound_key"))
-                            .append(" ");  // 添加一个空格分隔
+                            .append(" "); 
                     MutableComponent keyComp = Component.literal(key)
                             .withStyle(s -> s.withColor(TextColor.fromRgb(color & 0xFFFFFF)));
                     line.append(keyComp);
@@ -119,7 +119,6 @@ public class KeyTriggerBlockItem extends BlockItem {
         super.appendHoverText(stack, context, tooltip, flag);
     }
 
-    // ==================== NBT 工具方法（保持不变） ====================
     public static ListTag getBindList(ItemStack stack) {
         CompoundTag tag = stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
                 net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
