@@ -72,22 +72,15 @@ public class KeyTriggerBlock extends Block implements EntityBlock {
         }
         return InteractionResult.CONSUME;
     }
-
-    // ========== 新增：方块被破坏时生成带 NBT 的掉落物 ==========
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        // 仅在方块被真正替换（非活塞推拉）且服务端时处理
         if (!level.isClientSide && !state.is(newState.getBlock()) && level instanceof ServerLevel serverLevel) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof KeyTriggerBlockEntity entity) {
-                // 创建带 NBT 的掉落物
                 ItemStack dropStack = new ItemStack(this.asItem());
-
-                // 获取方块实体中的绑定数据
                 ListTag bindList = new ListTag();
                 for (KeyTriggerBlockEntity.BindEntry bind : entity.getBinds()) {
                     CompoundTag entry = new CompoundTag();
-                    // 将相对坐标转回绝对坐标
                     BlockPos absolute = pos.offset(bind.relativePos);
                     entry.putInt("X", absolute.getX());
                     entry.putInt("Y", absolute.getY());
@@ -102,34 +95,19 @@ public class KeyTriggerBlock extends Block implements EntityBlock {
                     dropStack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
                             net.minecraft.world.item.component.CustomData.of(customTag));
                 }
-
-                // 在方块被移除前生成掉落物
                 net.minecraft.world.item.ItemStack singleDrop = dropStack.copy();
                 net.minecraft.world.Containers.dropItemStack(
                         level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, singleDrop);
-
-                // 阻止默认掉落
                 level.removeBlock(pos, false);
-                // 注意：调用 removeBlock 后 onRemove 不会再被调用（因为 state.is(newState.getBlock()) 为 true）
-                // 但实际上这里需要小心处理。更安全的做法是覆盖 spawnAfterBreak：
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    /**
-     * 修复：覆盖 spawnAfterBreak 来生成带 NBT 的掉落物。
-     * 同时配合 `onRemove` 中 `level.removeBlock` 来阻止默认掉落。
-     */
     @Override
     public void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack, boolean dropExperience) {
-        // 什么都不做，因为 onRemove 已经手动生成了掉落物
-        // 这样就不会产生两份掉落
     }
 
-    /**
-     * 获取方块实体的绑定列表（供外部使用）
-     */
     public ListTag getBindListFromEntity(Level level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof KeyTriggerBlockEntity entity) {
