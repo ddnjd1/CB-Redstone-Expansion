@@ -1,7 +1,6 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    // 1. 应用NeoForge的现代Gradle插件
     id 'net.neoforged.moddev' version '2.0.78'
 }
 
@@ -10,15 +9,12 @@ base {
 }
 
 java {
-    // 2. NeoForge 1.21.1 要求使用 Java 21
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(15)
 }
 
 neoForge {
-    // 3. 指定NeoForge版本
     version = neo_version
 
-    // 4. 配置Mixin
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
@@ -26,9 +22,7 @@ neoForge {
     }
 
     runs {
-        // 为所有运行配置指定通用设置
         configureEach {
-            // 启用Mixin
             systemProperty 'mixin.env.remapRefMap', 'true'
             systemProperty 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
         }
@@ -56,30 +50,14 @@ neoForge {
     }
 }
 
-// 5. 为Mixin注解处理器添加依赖
 repositories {
     mavenCentral()
-    maven {
-        name = 'SpongePowered'
-        url = 'https://repo.spongepowered.org/repository/maven-public/'
-    }
-    // 为 Create 添加的 Maven 仓库
-    maven {
-        name = 'Create'
-        url = 'https://maven.createmod.net' // Create、Flywheel、Ponder[reference:3]
-    }
-    maven {
-        name = 'Registrate'
-        url = 'https://mvn.devos.one/snapshots' // Registrate[reference:4]
-    }
 }
 
 dependencies {
-    // 6. 添加 Mixin 注解处理器
     annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
 }
 
-// 处理资源文件中的属性替换
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
             minecraft_version      : minecraft_version,
@@ -100,7 +78,6 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-// 编译选项
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
