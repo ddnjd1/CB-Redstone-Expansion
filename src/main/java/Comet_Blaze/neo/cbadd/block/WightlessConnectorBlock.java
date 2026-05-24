@@ -82,16 +82,13 @@ public class WightlessConnectorBlock extends Block implements EntityBlock {
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
-
-    // ---------- 红石行为：像拉杆一样强充能背面 ----------
     @Override
     public boolean isSignalSource(BlockState state) {
         return true;
     }
-
+//some problems in here
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        // 弱信号：只向 FACING 的反方向输出 (即充能自身依附的方块)
         if (direction == state.getValue(FACING)) {
             return state.getValue(POWER);
         }
@@ -100,14 +97,11 @@ public class WightlessConnectorBlock extends Block implements EntityBlock {
 
     @Override
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        // 强信号：向 FACING 的反方向输出强充能信号 (即穿透方块)
         if (direction == state.getValue(FACING)) {
             return state.getValue(POWER);
         }
         return 0;
     }
-
-    // ---------- 实体 ----------
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
