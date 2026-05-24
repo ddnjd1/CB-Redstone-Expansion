@@ -41,20 +41,14 @@ public class KeyTriggerBlockEntity extends BlockEntity {
     }
 
     private final List<BindEntry> binds = new ArrayList<>();
-
-    // 记录当前被按下的按键集合（客户端GUI中按住）
     private final Set<String> activeKeys = Sets.newHashSet();
-    // 超时保护：上一次收到任何包的时间（游戏刻）
     private long lastPacketTick = 0;
-    private static final long TIMEOUT_TICKS = 100; // 5秒
+    private static final long TIMEOUT_TICKS = 100;
 
     public KeyTriggerBlockEntity(BlockPos pos, BlockState state) {
         super(CbaddModBlockEntities.KEY_TRIGGER.get(), pos, state);
     }
 
-    /**
-     * 公开方法：获取所有绑定条目（只读列表）
-     */
     public List<BindEntry> getBinds() {
         return Collections.unmodifiableList(binds);
     }
@@ -87,24 +81,16 @@ public class KeyTriggerBlockEntity extends BlockEntity {
         setChanged();
     }
 
-    /**
-     * 修复：聚合每个输出方块的按键状态，防止互相覆盖
-     */
     private void updateOutputs() {
         if (level == null || level.isClientSide) return;
-
-        // 汇总每个输出方块是否应该激活
         Map<BlockPos, Boolean> outputStates = new HashMap<>();
         for (BindEntry entry : binds) {
             BlockPos outputPos = worldPosition.offset(entry.relativePos);
             if (level.isLoaded(outputPos)) {
                 boolean thisKeyActive = activeKeys.contains(entry.key);
-                // 使用 OR 逻辑：只要有一个按键按下，该输出方块就应该激活
                 outputStates.merge(outputPos, thisKeyActive, (oldVal, newVal) -> oldVal || newVal);
             }
         }
-
-        // 统一设置信号
         for (Map.Entry<BlockPos, Boolean> entry : outputStates.entrySet()) {
             BlockPos outputPos = entry.getKey();
             boolean signalOn = entry.getValue();
