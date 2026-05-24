@@ -1,0 +1,52 @@
+{
+  "multipart": [
+    {
+      "when": { "facing": "down", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off", "x": 90 }
+    },
+    {
+      "when": { "facing": "down", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on", "x": 90 }
+    },
+    {
+      "when": { "facing": "up", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off", "x": -90 }
+    },
+    {
+      "when": { "facing": "up", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on", "x": -90 }
+    },
+    {
+      "when": { "facing": "north", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off" }
+    },
+    {
+      "when": { "facing": "north", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on" }
+    },
+    {
+      "when": { "facing": "south", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off", "y": 180 }
+    },
+    {
+      "when": { "facing": "south", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on", "y": 180 }
+    },
+    {
+      "when": { "facing": "west", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off", "y": 270 }
+    },
+    {
+      "when": { "facing": "west", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on", "y": 270 }
+    },
+    {
+      "when": { "facing": "east", "power": "0" },
+      "apply": { "model": "cbadd:block/wightless_connector_off", "y": 90 }
+    },
+    {
+      "when": { "facing": "east", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" },
+      "apply": { "model": "cbadd:block/wightless_connector_on", "y": 90 }
+    }
+  ]
+}

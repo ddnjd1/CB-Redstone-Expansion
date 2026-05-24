@@ -1,0 +1,21 @@
+{
+  "group": "noline",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    "121",
+    "   "
+  ],
+  "key": {
+    "1": {
+      "item": "minecraft:iron_ingot"
+    },
+    "2": {
+      "item": "cbadd:input_block"
+    }
+  },
+  "result": {
+    "item": "cbadd:wightless_connector",
+    "count": 1
+  }
+}

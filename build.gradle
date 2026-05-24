@@ -1,0 +1,106 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    // 1. 应用NeoForge的现代Gradle插件
+    id 'net.neoforged.moddev' version '2.0.78'
+}
+
+base {
+    archivesName = mod_name + mod_version
+}
+
+java {
+    // 2. NeoForge 1.21.1 要求使用 Java 21
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    // 3. 指定NeoForge版本
+    version = neo_version
+
+    // 4. 配置Mixin
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+
+    runs {
+        // 为所有运行配置指定通用设置
+        configureEach {
+            // 启用Mixin
+            systemProperty 'mixin.env.remapRefMap', 'true'
+            systemProperty 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+        }
+
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        }
+
+        server {
+            server()
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            programArgument '--nogui'
+        }
+
+        gameTestServer {
+            server()
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+}
+
+// 5. 为Mixin注解处理器添加依赖
+repositories {
+    mavenCentral()
+    maven {
+        name = 'SpongePowered'
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+    // 为 Create 添加的 Maven 仓库
+    maven {
+        name = 'Create'
+        url = 'https://maven.createmod.net' // Create、Flywheel、Ponder[reference:3]
+    }
+    maven {
+        name = 'Registrate'
+        url = 'https://mvn.devos.one/snapshots' // Registrate[reference:4]
+    }
+}
+
+dependencies {
+    // 6. 添加 Mixin 注解处理器
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+}
+
+// 处理资源文件中的属性替换
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version             : neo_version,
+            neo_version_range       : neo_version_range,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+            mod_authors             : mod_authors,
+            mod_description         : mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+// 编译选项
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

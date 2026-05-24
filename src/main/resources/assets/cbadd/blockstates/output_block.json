@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "power=0": { "model": "cbadd:block/output_block_off" },
+    "power=1": { "model": "cbadd:block/output_block_on" },
+    "power=2": { "model": "cbadd:block/output_block_on" },
+    "power=3": { "model": "cbadd:block/output_block_on" },
+    "power=4": { "model": "cbadd:block/output_block_on" },
+    "power=5": { "model": "cbadd:block/output_block_on" },
+    "power=6": { "model": "cbadd:block/output_block_on" },
+    "power=7": { "model": "cbadd:block/output_block_on" },
+    "power=8": { "model": "cbadd:block/output_block_on" },
+    "power=9": { "model": "cbadd:block/output_block_on" },
+    "power=10": { "model": "cbadd:block/output_block_on" },
+    "power=11": { "model": "cbadd:block/output_block_on" },
+    "power=12": { "model": "cbadd:block/output_block_on" },
+    "power=13": { "model": "cbadd:block/output_block_on" },
+    "power=14": { "model": "cbadd:block/output_block_on" },
+    "power=15": { "model": "cbadd:block/output_block_on" }
+  }
+}
