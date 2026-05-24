@@ -18,7 +18,7 @@ import java.util.List;
 public class ConnectorTileEntity extends BlockEntity {
     private final List<BlockPos> connectedOutputsRelative = new ArrayList<>();
     private final List<BlockPos> connectedInputsRelative = new ArrayList<>();
-    // 双向配对（仅 WightlessConnectorBlock 使用）
+    //WightlessConnectorBlock
     private final List<BlockPos> pairedConnectorsRelative = new ArrayList<>();
 
     private int signal = 0;
@@ -29,21 +29,17 @@ public class ConnectorTileEntity extends BlockEntity {
         if (state.getBlock() instanceof ConnectorBlock connectorBlock) {
             this.isInput = connectorBlock.isInput;
         } else {
-            this.isInput = false; // WightlessConnectorBlock 等
+            this.isInput = false;
         }
     }
 
-    // ========== 判断是否为 WightlessConnectorBlock ==========
     public boolean isWightless() {
         return this.getBlockState().getBlock() instanceof WightlessConnectorBlock;
     }
-
-    // ========== 配置获取 ==========
     public static int getMaxOutputs() {
         return Comet_Blaze.neo.cbadd.config.RedstoneConnectorConfig.MAX_OUTPUTS_PER_INPUT.get();
     }
 
-    // ========== 输入方块专用（不变） ==========
     public boolean addOutput(BlockPos outputPos) {
         if (!isInput) return false;
         if (connectedOutputsRelative.size() >= getMaxOutputs()) return false;
@@ -102,8 +98,6 @@ public class ConnectorTileEntity extends BlockEntity {
         connectedOutputsRelative.clear();
         setChanged();
     }
-
-    // ========== 输出方块专用（保留原逻辑，addInput 不再干扰配对） ==========
     public boolean addInput(BlockPos inputPos) {
         if (isInput) return false;
         BlockPos relative = inputPos.subtract(worldPosition);
@@ -141,8 +135,6 @@ public class ConnectorTileEntity extends BlockEntity {
     public void recalculateSignal() {
         if (level == null || level.isClientSide || isInput) return;
         int maxSignal = 0;
-
-        // 传统输入源
         for (BlockPos relative : connectedInputsRelative) {
             BlockPos inputPos = worldPosition.offset(relative);
             if (isWithinDistance(inputPos, 128) && level.isLoaded(inputPos)) {
@@ -152,8 +144,6 @@ public class ConnectorTileEntity extends BlockEntity {
                 }
             }
         }
-
-        // 双向配对的 WightlessConnectorBlock 信号
         for (BlockPos relative : pairedConnectorsRelative) {
             BlockPos pairedPos = worldPosition.offset(relative);
             if (isWithinDistance(pairedPos, 128) && level.isLoaded(pairedPos)) {
@@ -182,7 +172,6 @@ public class ConnectorTileEntity extends BlockEntity {
         setChanged();
     }
 
-    // ========== WightlessConnectorBlock 双向配对管理 ==========
     public boolean addPairedConnector(BlockPos otherPos) {
         if (!this.isWightless()) return false;
         BlockPos relative = otherPos.subtract(worldPosition);
@@ -216,7 +205,6 @@ public class ConnectorTileEntity extends BlockEntity {
         return absoluteList;
     }
 
-    // ========== 通用 ==========
     public int getSignal() { return signal; }
 
     public void setSignal(int signal) {
@@ -231,7 +219,6 @@ public class ConnectorTileEntity extends BlockEntity {
             }
         }
 
-        // 将信号同步给所有配对的 WightlessConnectorBlock
         if (level != null && !level.isClientSide && this.isWightless()) {
             for (BlockPos relative : pairedConnectorsRelative) {
                 BlockPos pairedPos = worldPosition.offset(relative);
@@ -262,7 +249,7 @@ public class ConnectorTileEntity extends BlockEntity {
         return dx <= maxDist && dz <= maxDist;
     }
 
-    // ========== NBT 序列化 ==========
+    //save NBT
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
