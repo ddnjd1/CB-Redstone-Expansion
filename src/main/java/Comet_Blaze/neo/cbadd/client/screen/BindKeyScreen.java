@@ -43,13 +43,11 @@ public class BindKeyScreen extends Screen {
                 ItemStack stack = mc.player.getItemInHand(this.hand);
                 if (stack.getItem() instanceof KeyTriggerBlockItem) {
                     if (KeyTriggerBlockItem.isAlreadyBound(stack, this.targetPos, bind.name())) {
-                        // 重复绑定提示
                         mc.player.displayClientMessage(Component.translatable("message.cbadd.bind_exists"), true);
-                        return true; // 不关闭屏幕，让玩家重新选择
+                        return true;
                     }
                 }
             }
-            // 发送绑定包并关闭屏幕
             PacketDistributor.sendToServer(new BindKeyPacket(hand, targetPos, bind.name()));
             this.onClose();
             return true;
@@ -68,7 +66,6 @@ public class BindKeyScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        // 透明背景
     }
 
     @Override
