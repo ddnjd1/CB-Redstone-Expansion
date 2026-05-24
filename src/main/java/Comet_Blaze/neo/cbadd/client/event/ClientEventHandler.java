@@ -46,25 +46,19 @@ public class ClientEventHandler {
     private static int justActivatedTimer = 0;
     private static final int ACTIVATION_COOLDOWN_TICKS = 5;
     private static boolean shiftWasDown = false;
-
-    // 原版 KeyMapping 拦截列表
     private static List<KeyMapping> movementKeys;
     private static List<KeyMapping> interactionKeys;
+    private static KeyMapping keyDrop; 
+    private static KeyMapping keySwapOffhand; 
 
-    // Q/F/G 原版 KeyMapping 引用
-    private static KeyMapping keyDrop;   // Q → 丢出物品
-    private static KeyMapping keySwapOffhand; // F → 副手交换
-
-    // 粒子生成频率控制
     private static int particleTickCounter = 0;
 
-    // 粒子颜色池（循环使用）
     private static final Vector3f[] PARTICLE_COLORS = {
             new Vector3f(1.0F, 0.2F, 0.2F), // 红
             new Vector3f(0.2F, 1.0F, 0.2F), // 绿
             new Vector3f(0.2F, 0.2F, 1.0F), // 蓝
             new Vector3f(1.0F, 1.0F, 0.2F), // 黄
-            new Vector3f(1.0F, 0.2F, 1.0F), // 品红
+            new Vector3f(1.0F, 0.2F, 1.0F), // 红
             new Vector3f(0.2F, 1.0F, 1.0F), // 青
             new Vector3f(1.0F, 0.6F, 0.2F), // 橙
             new Vector3f(0.6F, 0.2F, 1.0F)  // 紫
@@ -87,12 +81,10 @@ public class ClientEventHandler {
         keySwapOffhand = mc.options.keySwapOffhand;
     }
 
-    // ========== 修复：补回此方法 ==========
     private static boolean isKeyBindingActive(KeyMapping km) {
         int code = km.getKey().getValue();
         return KeyBindings.fromCode(code) != null;
     }
-    // ==================== HUD 提示 ====================
     @SubscribeEvent
     public static void onRenderHud(RenderGuiEvent.Post event) {
         if (currentActivePos != null) {
@@ -105,8 +97,6 @@ public class ClientEventHandler {
             );
         }
     }
-
-    // ==================== 每 Tick 拦截按键并发送信号 ====================
     @SubscribeEvent
     public static void onClientTickPre(ClientTickEvent.Pre event) {
         if (currentActivePos == null) return;
@@ -184,14 +174,11 @@ public class ClientEventHandler {
             }
         }
     }
-
-    // ==================== 粒子生成（替代文字） ====================
     @SubscribeEvent
     public static void onClientTickPost(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // 仅当主手持有 KeyTriggerBlockItem 且有绑定时才生成粒子
         ItemStack stack = mc.player.getMainHandItem();
         if (!(stack.getItem() instanceof KeyTriggerBlockItem)) return;
 
@@ -201,8 +188,6 @@ public class ClientEventHandler {
 
         ListTag list = tag.getList("BindList", Tag.TAG_COMPOUND);
         if (list.isEmpty()) return;
-
-        // 每 4 tick 生成一波粒子，避免过密
         particleTickCounter++;
         if (particleTickCounter % 2 != 0) return;
 
@@ -210,7 +195,6 @@ public class ClientEventHandler {
             CompoundTag entry = list.getCompound(i);
             BlockPos pos = new BlockPos(entry.getInt("X"), entry.getInt("Y"), entry.getInt("Z"));
             Vector3f color = PARTICLE_COLORS[i % PARTICLE_COLORS.length];
-            // 限制粒子在方块中心 0.8m 立方体内生成
             double x = pos.getX() + 0.5 + (mc.level.random.nextDouble() - 0.5) * 0.9;
             double y = pos.getY() + 0.5 + (mc.level.random.nextDouble() - 0.5) * 0.9;
             double z = pos.getZ() + 0.5 + (mc.level.random.nextDouble() - 0.5) * 0.9;
@@ -218,7 +202,6 @@ public class ClientEventHandler {
         }
     }
 
-    // ==================== 世界渲染（仅保留线框） ====================
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
@@ -240,7 +223,6 @@ public class ClientEventHandler {
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         PoseStack poseStack = event.getPoseStack();
 
-        // 只绘制线框，不再绘制文字
         drawBlockWireframes(poseStack, bufferSource, list, cam);
 
         bufferSource.endBatch();
@@ -335,7 +317,6 @@ public class ClientEventHandler {
                 .setColor(255, 255, 255, 255).setUv(0, 1).setUv2(fullBright, fullBright).setNormal(0, 1, 0);
     }
 
-    // ==================== 公共 API ====================
     public static void registerActiveOverlay(BlockPos pos) {
         if (currentActivePos != null) deactivate();
         currentActivePos = pos;
