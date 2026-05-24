@@ -31,7 +31,6 @@ public class ConnectorItem extends Item {
         if (player == null) return InteractionResult.PASS;
         ItemStack stack = context.getItemInHand();
 
-        // 潜行清除绑定
         if (player.isShiftKeyDown()) {
             clearBoundInput(stack, player);
             return InteractionResult.SUCCESS;
@@ -46,8 +45,7 @@ public class ConnectorItem extends Item {
         if (!(be instanceof ConnectorTileEntity connector)) {
             return InteractionResult.PASS;
         }
-
-        // 读取当前绑定的坐标
+        
         CompoundTag tag = getOrCreateCustomTag(stack);
         BlockPos boundPos = null;
         if (tag.contains("BoundX") && tag.contains("BoundY") && tag.contains("BoundZ")) {
@@ -58,23 +56,20 @@ public class ConnectorItem extends Item {
             );
         }
 
-        // ====== WightlessConnectorBlock 专属逻辑 ======
+        //WightlessConnectorBlock
         if (connector.isWightless()) {
             if (boundPos != null) {
-                // 确保绑定的也是 WightlessConnectorBlock
                 BlockEntity boundBe = level.getBlockEntity(boundPos);
                 if (!(boundBe instanceof ConnectorTileEntity boundTile) || !boundTile.isWightless()) {
                     player.displayClientMessage(
                             Component.translatable("message.connector.bound_input_invalid"), true);
-                    clearBoundInput(stack, player); // 无效绑定，告知清除
+                    clearBoundInput(stack, player);
                     return InteractionResult.FAIL;
                 }
 
-                // 防止自连
                 if (boundPos.equals(pos)) {
                     player.displayClientMessage(
                             Component.translatable("message.connector.cannot_pair_self"), true);
-                    // 清除物品绑定，但不发送清除消息
                     tag.remove("BoundX");
                     tag.remove("BoundY");
                     tag.remove("BoundZ");
@@ -82,16 +77,13 @@ public class ConnectorItem extends Item {
                     return InteractionResult.FAIL;
                 }
 
-                // 正确判断当前是否已配对（必须双向同时存在才算已连接）
                 boolean alreadyPaired = boundTile.isPairedWith(pos) && connector.isPairedWith(boundPos);
                 if (alreadyPaired) {
-                    // 已配对 → 解除链接
                     boundTile.removePairedConnector(pos);
                     connector.removePairedConnector(boundPos);
                     player.displayClientMessage(
                             Component.translatable("message.connector.wightless_pair_removed"), true);
                 } else {
-                    // 未配对 → 建立新链接（先清理可能残留的单向记录）
                     if (boundTile.isPairedWith(pos)) boundTile.removePairedConnector(pos);
                     if (connector.isPairedWith(boundPos)) connector.removePairedConnector(boundPos);
 
@@ -101,21 +93,18 @@ public class ConnectorItem extends Item {
                         player.displayClientMessage(
                                 Component.translatable("message.connector.wightless_pair_success"), true);
                     } else {
-                        // 失败回滚
                         if (a) boundTile.removePairedConnector(pos);
                         if (b) connector.removePairedConnector(boundPos);
                         player.displayClientMessage(
                                 Component.translatable("message.connector.wightless_pair_failed"), true);
                     }
                 }
-                // 无论建立还是解除，都清理物品绑定，但不弹出“已清除绑定”提示
                 tag.remove("BoundX");
                 tag.remove("BoundY");
                 tag.remove("BoundZ");
                 setCustomTag(stack, tag);
                 return InteractionResult.SUCCESS;
             } else {
-                // 无绑定 → 记录当前 Wightless 坐标
                 tag.putInt("BoundX", pos.getX());
                 tag.putInt("BoundY", pos.getY());
                 tag.putInt("BoundZ", pos.getZ());
@@ -126,9 +115,7 @@ public class ConnectorItem extends Item {
             }
         }
 
-        // ====== 原有输入/输出方块逻辑 ======
         if (connector.isInput()) {
-            // 右键输入方块：记录坐标
             tag.putInt("BoundX", pos.getX());
             tag.putInt("BoundY", pos.getY());
             tag.putInt("BoundZ", pos.getZ());
@@ -138,7 +125,6 @@ public class ConnectorItem extends Item {
                     true);
             return InteractionResult.SUCCESS;
         } else {
-            // 右键普通输出方块
             if (boundPos == null) {
                 player.displayClientMessage(
                         Component.translatable("message.connector.need_input_first"), true);
@@ -153,7 +139,6 @@ public class ConnectorItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 若已连接则断开
             if (inputTile.containsOutput(pos) && connector.containsInput(boundPos)) {
                 inputTile.removeOutput(pos);
                 connector.removeInput(boundPos);
@@ -162,7 +147,6 @@ public class ConnectorItem extends Item {
                 return InteractionResult.SUCCESS;
             }
 
-            // 检查连接上限
             if (inputTile.getConnectedOutputs().size() >= ConnectorTileEntity.getMaxOutputs()) {
                 player.displayClientMessage(
                         Component.translatable("message.connector.max_outputs_reached",
@@ -170,7 +154,6 @@ public class ConnectorItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 建立连接
             if (!inputTile.addOutput(pos)) {
                 player.displayClientMessage(
                         Component.translatable("message.connector.failed_to_establish"), true);
